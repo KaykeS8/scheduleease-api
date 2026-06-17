@@ -10,12 +10,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import simao.project.agendamento.dtos.client.ClientRequestDto;
 import simao.project.agendamento.dtos.client.ClientResponseDto;
+import simao.project.agendamento.dtos.client.ClientUpdateDto;
 import simao.project.agendamento.entitys.Client;
 import simao.project.agendamento.mappers.ClientMapper;
 import simao.project.agendamento.repositories.ClientRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -42,13 +44,13 @@ class ClientServiceTest {
 
     @BeforeEach
     void setup() {
-        client = new Client("test", "client test", "123456");
+        client = new Client("test", "test@gmail.com", "123456");
         client.setId(1L);
         client.setSchedulings(null);
         client.setCreatedAt(LocalDateTime.now());
 
         request = new ClientRequestDto("test", "client test", "123456");
-        response = new ClientResponseDto(1L, "test", "client test", "123456", null, LocalDateTime.now());
+        response = new ClientResponseDto(1L, "test", "test@gmail.com", "123456");
     }
 
     @Nested
@@ -86,4 +88,123 @@ class ClientServiceTest {
             assertThat(clientResponse).isEmpty();
         }
     }
+
+    @Nested
+    @DisplayName("createClient()")
+    class CreateClient {
+
+        @Test
+        @DisplayName("Should create one client when all args is correctly")
+        void shouldCreateClient() {
+            //arrange
+            when(mapper.toEntity(request)).thenReturn(client);
+            when(mapper.toDto(client)).thenReturn(response);
+            when(clientRepository.save(any(Client.class))).thenReturn(client);
+
+            //act
+            ClientResponseDto clientResonse = clientService.createClient(request);
+
+            //assert
+            assertThat(clientResonse).isNotNull();
+            assertThat(clientResonse.id()).isEqualTo(1L);
+            assertThat(clientResonse.name()).isEqualTo("test");
+            assertThat(clientResonse.email()).isEqualTo("test@gmail.com");
+            assertThat(clientResonse.phone()).isEqualTo("123456");
+
+            //verify
+            verify(clientRepository, times(1)).save(any(Client.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("getClientById()")
+    class GetClientById {
+        @Test
+        @DisplayName("Should return client when id exist")
+        void shouldReturnClientById() {
+            //arrange
+            when(clientRepository.findById(1L)).thenReturn(Optional.of(client));
+            when(mapper.toDto(client)).thenReturn(response);
+
+            //ACT
+            ClientResponseDto clientResponse = clientService.getClientById(1L);
+
+            //assert
+            assertThat(clientResponse).isNotNull();
+            assertThat(clientResponse.id()).isEqualTo(1L);
+            assertThat(clientResponse.name()).isEqualTo("test");
+
+        }
+    }
+
+    @Nested
+    @DisplayName("updateClient()")
+    class UpdateClient {
+
+        @Test
+        @DisplayName("Should update client when ID exists")
+        void shouldUpdateClient() {
+            // Arrange
+            ClientUpdateDto updateDto = new ClientUpdateDto(
+                    "Updated Name",
+                    "updated@gmail.com",
+                    "999999999"
+            );
+
+            Client updatedClient = new Client();
+            updatedClient.setId(1L);
+            updatedClient.setName("Updated Name");
+            updatedClient.setEmail("updated@gmail.com");
+            updatedClient.setPhone("999999999");
+
+            ClientResponseDto responseDto = new ClientResponseDto(
+                    1L,
+                    "Updated Name",
+                    "updated@gmail.com",
+                    "999999999"
+            );
+
+            when(clientRepository.findById(1L))
+                    .thenReturn(Optional.of(client));
+
+            when(clientRepository.save(any(Client.class)))
+                    .thenReturn(updatedClient);
+
+            when(mapper.toDto(updatedClient))
+                    .thenReturn(responseDto);
+
+            // Act
+            ClientResponseDto response =
+                    clientService.updateClient(updateDto, 1L);
+
+            // Assert
+            assertThat(response).isNotNull();
+            assertThat(response.id()).isEqualTo(1L);
+            assertThat(response.name()).isEqualTo("Updated Name");
+            assertThat(response.email()).isEqualTo("updated@gmail.com");
+            assertThat(response.phone()).isEqualTo("999999999");
+
+            verify(clientRepository).findById(1L);
+            verify(clientRepository).save(any(Client.class));
+            verify(mapper).toDto(updatedClient);
+        }
+    }
+
+    @Nested
+    @DisplayName("deleteClient()")
+    class DeleteClient {
+
+        @Test
+        @DisplayName("Should delete client by id when exist")
+        void shouldDeleteClientById() {
+            when(clientRepository.existsById(1L)).thenReturn(true);
+            doNothing().when(clientRepository).deleteById(1L);
+
+            clientService.deleteClient(1L);
+
+            verify(clientRepository, times(1)).deleteById(1L);
+        }
+    }
+
+
 }
