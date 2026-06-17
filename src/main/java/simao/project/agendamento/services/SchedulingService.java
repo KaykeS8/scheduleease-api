@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import simao.project.agendamento.dtos.scheduling.SchedulingRequestDto;
 import simao.project.agendamento.dtos.scheduling.SchedulingResponseDto;
+import simao.project.agendamento.dtos.scheduling.SchedulingUpdateDto;
 import simao.project.agendamento.entitys.Client;
 import simao.project.agendamento.entitys.Professional;
 import simao.project.agendamento.entitys.Scheduling;
@@ -42,6 +43,7 @@ public class SchedulingService {
     }
 
     public List<SchedulingResponseDto> getAllScheduling() {
+        log.info("Get all appointments");
         return schedulingRepository.findAll().stream().map(SchedulingResponseDto::toDto).toList();
     }
 
@@ -56,7 +58,7 @@ public class SchedulingService {
                 .orElseThrow(() -> new EntityNotFoundException("Professional not found with ID: " + schedulingRequestDto.professionalId()));
 
         ServiceItem serviceItem = serviceItemRepository.findById(schedulingRequestDto.serviceItemId())
-                .orElseThrow(() -> new EntityNotFoundException("Service item not found with ID: " + schedulingRequestDto.serviceItemId()));
+                .orElseThrow(() -> new EntityNotFoundException("Service does not exist " + schedulingRequestDto.serviceItemId()));
 
         LocalDateTime endDateTime = schedulingRequestDto.startDateTime().plusMinutes(serviceItem.getDurationMinutes());
 
@@ -76,5 +78,31 @@ public class SchedulingService {
         scheduling.setEndDateTime(endDateTime);
 
         return SchedulingResponseDto.toDto(schedulingRepository.save(scheduling));
+    }
+
+    public SchedulingResponseDto getSchedulingById(Long id) {
+        log.info("Get scheduling by ID: {}", id);
+        return schedulingRepository.findById(id)
+                .map(SchedulingResponseDto::toDto)
+                .orElseThrow(() -> new EntityNotFoundException("Scheduling not found with ID: " + id));
+
+    }
+
+    public SchedulingResponseDto updateScheduling(SchedulingUpdateDto schedulingUpdateDto, Long id) {
+        log.info("Updating scheduling with ID: {}", id);
+        return schedulingRepository.findById(id)
+                .map(scheduling -> {
+                    if (schedulingUpdateDto.status() != null && schedulingUpdateDto.status().equals(StatusScheduling.CANCELED) && scheduling.getStartDateTime().isBefore(LocalDateTime.now().plusHours(1))) {
+                        throw new NoAvailableTimeException("Appointments can only be cancelled with at least 1 hour's notice.");
+                    }
+                    if (schedulingUpdateDto.status() != null) scheduling.setStatus(schedulingUpdateDto.status());
+                    return SchedulingResponseDto.toDto(schedulingRepository.save(scheduling));
+                }).orElseThrow(() -> new EntityNotFoundException("Scheduling not found with ID: " + id));
+    }
+
+    public void deleteScheduling(Long id) {
+        log.info("Removing scheduling by ID: {}", id);
+        if (!schedulingRepository.existsById(id)) throw new EntityNotFoundException("Scheduling not found with ID: " + id);
+        schedulingRepository.deleteById(id);
     }
 }
