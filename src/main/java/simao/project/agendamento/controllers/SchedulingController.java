@@ -27,7 +27,7 @@ public class SchedulingController {
 
     @PostMapping
     public ResponseEntity<SchedulingResponseDto> createScheduling(@RequestBody @Valid SchedulingRequestDto schedulingRequestDto) {
-        return ResponseEntity.status(HttpStatus.OK).body(schedulingService.createScheduling(schedulingRequestDto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(schedulingService.createScheduling(schedulingRequestDto));
     }
 
     @GetMapping("/{id}")

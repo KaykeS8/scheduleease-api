@@ -1,8 +1,10 @@
 package simao.project.agendamento.dtos.client;
 
+import jakarta.validation.constraints.Email;
+
 public record ClientUpdateDto(
         String name,
-        String email,
+        @Email String email,
         String phone
 ) {
 }

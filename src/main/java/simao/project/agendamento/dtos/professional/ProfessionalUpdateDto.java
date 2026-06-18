@@ -1,8 +1,10 @@
 package simao.project.agendamento.dtos.professional;
 
+import jakarta.validation.constraints.Email;
+
 public record ProfessionalUpdateDto(
         String name,
-        String email,
+        @Email String email,
         String specialty
 ) {
 }

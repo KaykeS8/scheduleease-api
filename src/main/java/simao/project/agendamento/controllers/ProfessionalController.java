@@ -37,7 +37,7 @@ public class ProfessionalController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProfessionalResponseDto> updateProfessional(@RequestBody ProfessionalUpdateDto professionalUpdateDto, @PathVariable Long id) {
+    public ResponseEntity<ProfessionalResponseDto> updateProfessional(@RequestBody @Valid ProfessionalUpdateDto professionalUpdateDto, @PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.OK).body(professionalService.updateProfessional(professionalUpdateDto, id));
     }
 

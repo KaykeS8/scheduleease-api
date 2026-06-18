@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import simao.project.agendamento.dtos.serviceItem.ServiceItemRequestDto;
 import simao.project.agendamento.dtos.serviceItem.ServiceItemResponseDto;
 import simao.project.agendamento.dtos.serviceItem.ServiceItemUpdateDto;
-import simao.project.agendamento.entitys.ServiceItem;
 import simao.project.agendamento.services.ServiceItemService;
 
 import java.util.List;

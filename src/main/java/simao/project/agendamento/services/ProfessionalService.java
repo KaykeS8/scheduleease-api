@@ -1,5 +1,6 @@
 package simao.project.agendamento.services;
 
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class ProfessionalService {
         return professionalRepository.findAll().stream().map(mapper::toDto).toList();
     }
 
+    @Transactional
     public ProfessionalResponseDto createProfessional(ProfessionalRequestDto professionalRequestDto) {
         log.info("Creating professional");
         Professional professional = professionalRepository.save(mapper.toEntity(professionalRequestDto));
@@ -42,6 +44,7 @@ public class ProfessionalService {
                 .orElseThrow(() -> new EntityNotFoundException("Professional not found with ID: " + id));
     }
 
+    @Transactional
     public ProfessionalResponseDto updateProfessional(ProfessionalUpdateDto professionalUpdateDto, Long id) {
         log.info("Updating professional by ID: {}", id);
         return professionalRepository.findById(id)

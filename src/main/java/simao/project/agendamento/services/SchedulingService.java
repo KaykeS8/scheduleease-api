@@ -88,13 +88,18 @@ public class SchedulingService {
 
     }
 
+    @Transactional
     public SchedulingResponseDto updateScheduling(SchedulingUpdateDto schedulingUpdateDto, Long id) {
         log.info("Updating scheduling with ID: {}", id);
         return schedulingRepository.findById(id)
                 .map(scheduling -> {
-                    if (schedulingUpdateDto.status() != null && schedulingUpdateDto.status().equals(StatusScheduling.CANCELED) && scheduling.getStartDateTime().isBefore(LocalDateTime.now().plusHours(1))) {
-                        throw new NoAvailableTimeException("Appointments can only be cancelled with at least 1 hour's notice.");
-                    }
+                    boolean isCancellation = schedulingUpdateDto.status() != null
+                            && schedulingUpdateDto.status().equals(StatusScheduling.CANCELED);
+
+                    boolean tooLateToCancel = scheduling.getStartDateTime()
+                            .isBefore(LocalDateTime.now().plusHours(1));
+                    if (isCancellation && tooLateToCancel) throw new NoAvailableTimeException("Appointments can only be cancelled with at least 1 hour's notice.");
+
                     if (schedulingUpdateDto.status() != null) scheduling.setStatus(schedulingUpdateDto.status());
                     return SchedulingResponseDto.toDto(schedulingRepository.save(scheduling));
                 }).orElseThrow(() -> new EntityNotFoundException("Scheduling not found with ID: " + id));

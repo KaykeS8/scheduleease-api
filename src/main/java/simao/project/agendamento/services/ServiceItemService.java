@@ -1,5 +1,6 @@
 package simao.project.agendamento.services;
 
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class ServiceItemService {
         return serviceItemRepository.findAll().stream().map(mapper::toDto).toList();
     }
 
+    @Transactional
     public ServiceItemResponseDto createServiceItem(ServiceItemRequestDto serviceItemRequestDto) {
         log.info("Creating service item");
        ServiceItem serviceItemEntity = serviceItemRepository.save(mapper.toEntity(serviceItemRequestDto));
@@ -43,6 +45,7 @@ public class ServiceItemService {
                 .orElseThrow(() -> new EntityNotFoundException("Service item not found with ID: " + id));
     }
 
+    @Transactional
     public ServiceItemResponseDto updateServiceItem(ServiceItemUpdateDto serviceItemUpdateDto, Long id) {
         log.info("Update service item with ID {}", id);
         return serviceItemRepository.findById(id)

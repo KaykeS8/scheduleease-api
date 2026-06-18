@@ -1,5 +1,6 @@
 package simao.project.agendamento.services;
 
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class ClientService {
         return clientRepository.findAll().stream().map(mapper::toDto).toList();
     }
 
+    @Transactional
     public ClientResponseDto createClient(ClientRequestDto clientRequestDto) {
         log.info("Creating client");
         Client client = clientRepository.save(mapper.toEntity(clientRequestDto));
@@ -42,6 +44,7 @@ public class ClientService {
                 .orElseThrow(() -> new EntityNotFoundException("Client not found with ID: " + id));
     }
 
+    @Transactional
     public ClientResponseDto updateClient(ClientUpdateDto clientUpdateDto, Long id) {
         log.info("Updating client with ID: {}", id);
         return clientRepository.findById(id)

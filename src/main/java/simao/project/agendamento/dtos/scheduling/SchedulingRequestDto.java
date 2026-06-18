@@ -3,13 +3,11 @@ package simao.project.agendamento.dtos.scheduling;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDateTime;
 
 public record SchedulingRequestDto(
         @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
         @NotNull(message = "start date is required")
-        @DateTimeFormat
         @Future(message = "date should be in future")
         LocalDateTime startDateTime,
 
