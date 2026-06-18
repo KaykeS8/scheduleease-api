@@ -51,15 +51,9 @@ public class SchedulingService {
     public SchedulingResponseDto createScheduling(SchedulingRequestDto schedulingRequestDto) {
         log.info("Creating scheduling");
 
-        Client client = clientRepository.findById(schedulingRequestDto.clientId())
-                .orElseThrow(() -> new EntityNotFoundException("Client not found with ID: " + schedulingRequestDto.clientId()));
-
-        Professional professional = professionalRepository.findById(schedulingRequestDto.professionalId())
-                .orElseThrow(() -> new EntityNotFoundException("Professional not found with ID: " + schedulingRequestDto.professionalId()));
-
-        ServiceItem serviceItem = serviceItemRepository.findById(schedulingRequestDto.serviceItemId())
-                .orElseThrow(() -> new EntityNotFoundException("Service does not exist " + schedulingRequestDto.serviceItemId()));
-
+        Client client = findClient(schedulingRequestDto.clientId());
+        Professional professional = findProfessional(schedulingRequestDto.professionalId());
+        ServiceItem serviceItem = findServiceItem(schedulingRequestDto.serviceItemId());
         LocalDateTime endDateTime = schedulingRequestDto.startDateTime().plusMinutes(serviceItem.getDurationMinutes());
 
         if (schedulingRepository.existDateConflict(schedulingRequestDto.professionalId(), schedulingRequestDto.startDateTime(), endDateTime)) {
@@ -109,5 +103,20 @@ public class SchedulingService {
         log.info("Removing scheduling by ID: {}", id);
         if (!schedulingRepository.existsById(id)) throw new EntityNotFoundException("Scheduling not found with ID: " + id);
         schedulingRepository.deleteById(id);
+    }
+
+    private Client findClient(Long id) {
+         return clientRepository.findById(schedulingRequestDto.clientId())
+                .orElseThrow(() -> new EntityNotFoundException("Client not found with ID: " + schedulingRequestDto.clientId()));
+    }
+
+    private Professional findProfessional(Long id ) {
+         return professionalRepository.findById(schedulingRequestDto.professionalId())
+                .orElseThrow(() -> new EntityNotFoundException("Professional not found with ID: " + schedulingRequestDto.professionalId()));
+    }
+
+    private ServiceItem findServiceItem(Long id) {
+        return serviceItemRepository.findById(schedulingRequestDto.serviceItemId())
+                .orElseThrow(() -> new EntityNotFoundException("Service does not exist " + schedulingRequestDto.serviceItemId()));
     }
 }
