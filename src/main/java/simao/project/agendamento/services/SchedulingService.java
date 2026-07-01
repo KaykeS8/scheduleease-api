@@ -106,17 +106,17 @@ public class SchedulingService {
     }
 
     private Client findClient(Long id) {
-         return clientRepository.findById(schedulingRequestDto.clientId())
-                .orElseThrow(() -> new EntityNotFoundException("Client not found with ID: " + schedulingRequestDto.clientId()));
+         return clientRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Client not found with ID: " + id));
     }
 
     private Professional findProfessional(Long id ) {
-         return professionalRepository.findById(schedulingRequestDto.professionalId())
-                .orElseThrow(() -> new EntityNotFoundException("Professional not found with ID: " + schedulingRequestDto.professionalId()));
+         return professionalRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Professional not found with ID: " + id));
     }
 
     private ServiceItem findServiceItem(Long id) {
-        return serviceItemRepository.findById(schedulingRequestDto.serviceItemId())
-                .orElseThrow(() -> new EntityNotFoundException("Service does not exist " + schedulingRequestDto.serviceItemId()));
+        return serviceItemRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Service does not exist " + id));
     }
 }
